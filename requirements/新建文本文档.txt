@@ -1,0 +1,3 @@
+/*开发所需的依赖文件*/
+-r common.txt
+ForgeryPy==0.1

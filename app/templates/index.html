@@ -1,16 +1,40 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
 
 {% block title %}Flasky{% endblock %}
 
 {% block page_content %}
 <div class="page-header">
-    <h1>Hello, {% if name %}{{ name }}{% else %}Stranger{% endif %}!</h1>
-    {% if not known %}
-    <p>Pleased to meet you!</p>
-    {% else %}
-    <p>Happy to see you again!</p>
-    {% endif %}
+    <h1>Hello, {% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}!</h1>
 </div>
-{{ wtf.quick_form(form) }}
+<div>
+    {% if current_user.can(Permission.WRITE_ARTICLES) %}
+    {{ wtf.quick_form(form) }}<!--对匿名用户隐藏博客表单-->
+    {% endif %}
+    <ul class="nav nav-tabs">
+        {% if current_user.is_authenticated %}
+            <li{% if not show_followed %} class="active"{% endif %}>
+            <a href="{{ url_for('.show_all') }}">All</a></li>
+            <li{% if show_followed %} class="active"{% endif %}>
+            <a href="{{ url_for('.show_followed') }}">Followers</a></li>
+        {% endif %}
+    </ul>
+</div>
+<ul class="posts">
+    {% if current_user.can(Permission.WRITE_ARTICLES) %}
+        {% include '_posts.html' %}<!--内容-->
+    <div class="pagination"><!--页面选择-->
+        {{ macros.pagination_widget(pagination , '.index') }}
+    </div>
+    {% endif %}
+</ul>
+{% endblock %}
+
+<!--Flask-PageDown 模板声明-->
+{% block scripts %}
+{{ super() }}
+<!--Markdown 预览使用 PageDown 库生成，因此要在模板中修改。 Flask-PageDown 简化了这个过程，
+提供了一个模板宏，从 CDN 中加载所需文件-->
+{{ pagedown.include_pagedown() }}<!--flask-pagedown-preview,预览功能-->
 {% endblock %}

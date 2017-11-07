@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Flasky - Login{% endblock %}
+
+{% block page_content %}
+<div class="col-md-4">
+    <div class="page-header">
+        <h1>Login</h1>
+    </div>
+    {{ wtf.quick_form(form) }}
+    <br>
+    <p>Forgot your password? <a href="{{ url_for('auth.password_reset_request') }}">Click here to reset it</a>.</p>
+    <p>New user? <a href="{{ url_for('auth.register') }}">Click here to register</a>.</p>
+</div>
+{% endblock %}
+
+
+
+
+
+
+<!--<div class="page-header-fix">-->
+    <!--<h1>Login</h1>-->
+    <!--<form method="POST">-->
+        <!--{{ form.hidden_tag() }}-->
+        <!--{{ form.email.label }} {{ form.email(size=20) }}<br>-->
+        <!--{{ form.password.label }} {{ form.password(size=20) }}-->
+        <!--{{ form.remember_me.label }} {{ form.remember_me(size=20) }}<br>-->
+    <!--</form>-->
+    <!--<br>-->
+    <!--<p>Forgot your password? <a href="{{ url_for('auth.password_reset_request') }}">Click here to reset it</a>.</p>-->
+    <!--<p>New user? <a href="{{ url_for('auth.register') }}">Click here to register</a>.</p>-->
+	
+<!--</div>-->

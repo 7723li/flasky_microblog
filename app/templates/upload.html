@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Flasky - Change avatar{% endblock %}
+
+{% block page_content %}
+<style type="text/css">
+	.gravatar{
+		float: right;
+		margin-right: 256px;
+	}
+</style>
+<div class="page-header">
+    <h1>Choose Your Avatar</h1>
+</div>
+<div class="col-md-4">
+    {{ wtf.quick_form(form) }}
+</div>
+<img src="{{ current_user.gravatar(size=256) }}" class="img-responsiv" width="256" height="256"><br><br><br>
+由于浏览器缓存问题，上传后不会立刻更新，电脑端请按clrt+F5更新浏览器缓存，手机端暂时没有方法....解决中...
+{% endblock %}

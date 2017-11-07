@@ -1,0 +1,20 @@
+|-flasky
+	|-app/应用文件
+		|-templates/网页模板
+		|-static/静态文件
+		|-main/
+			|-__init__.py创建蓝本
+			|-errors.py错误页面
+			|-forms.py表单
+			|-views.py网页视图
+		|-__init__.py创建app
+		|-email.py邮件应用
+		|-models.py数据库模型
+	|-migrations/#数据库迁移
+	|-tests/单元测试
+		|-__init__.py
+		|-test*.py
+	|-venv/虚拟环境
+	|-requirements.txt需求文件
+	|-config.py程序的配置
+	|-manage.py运行脚本

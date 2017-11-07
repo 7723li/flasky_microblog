@@ -3,46 +3,103 @@
 {% block title %}Flasky{% endblock %}
 
 {% block head %}
-{{ super() }}
-<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+	{{ super() }}
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+	<link rel="shortcut icon" href="{{ url_for('static', filename = 'Gravatar/favicon.ico') }}" type="image/x-icon">
+	<link rel="icon" href="{{ url_for('static', filename = 'Gravatar/favicon.ico') }}" type="image/x-icon">
+	<style type="text/css">
+	/* Custom Styles */
+    
+	</style>
 {% endblock %}
 
-{% block navbar %}
-<div class="navbar navbar-inverse" role="navigation">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">Flasky</a>
-        </div>
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="{{ url_for('main.index') }}">Home</a></li>
+{% block body_attribs %} data-spy="scroll" data-target="#myScrollspy"{% endblock %}
+
+{% block body %}
+
+	{% block navbar %}
+		<nav class="navbar navbar-inverse test" role="navigation" data-spy="scroll" data-target="#myScrollspy">
+			<div class="container">
+			    <div class="navbar-header">
+			        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+			            <span class="sr-only">Toggle navigation</span>
+			            <span class="icon-bar"></span>
+			            <span class="icon-bar"></span>
+			            <span class="ic on-bar"></span>
+			        </button>
+			        <a class="navbar-brand" href="{{ url_for('main.index') }}">Flasky</a>
+			    </div>
+			    <div class="navbar-collapse collapse">
+			        <ul class="nav navbar-nav">
+			            {% if current_user.is_authenticated %}
+			            <li><a href="{{ url_for('main.video')}}">Video</a></li>
+			            <li><a href="{{ url_for('main.control')}}">Control</a></li>
+			            {% endif %}
+			        </ul>
+
+			        <ul class="nav navbar-nav navbar-right"><!--导航条中的 Sign In 和 Sign Out 链接-->
+			            {% if current_user.is_authenticated %}
+			            <!--有由flask-login提供
+			            is_authenticated() 如果用户已经登录，必须返回 True，否则返回 False
+			            is_active() 如果允许用户登录，必须返回 True，否则返回 False。如果要禁用账户，可以返回 False
+			            is_anonymous() 对普通用户必须返回 False
+			            get_id() 必须返回用户的唯一标识符，使用 Unicode 编码字符串  -->
+							
+							<li class="dropdown">
+			                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="{{ current_user.gravatar(size=24) }}" width="24" height="24"></a>
+			                    <ul class="dropdown-menu">
+			                    	<li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
+			                    	<li><a href="{{ url_for('main.upload') }}">Change Avatar</a></li>
+			                    </ul>
+			                </li>
+			                <li class="dropdown">
+			                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"> {{current_user.username}} <b class="caret"></b></a>
+			                    <ul class="dropdown-menu">
+			                        <li><a href="{{ url_for('auth.change_password') }}">Change Password</a></li>
+			                        <li><a href="{{ url_for('auth.change_email_request') }}">Change Email</a></li>
+			                        <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
+			                    </ul>
+			                </li>
+			            	{% if current_user.is_administrator() %}
+			                <li class="dropdown">
+			                    <a href="{{ url_for('main.userlist') }}">UserList</a>
+			                </li>
+			                {% else %}
+			                {% endif %}
+			            {% else %}
+			            <li><a href="{{ url_for('auth.login') }}">Log In</a></li>
+			            {% endif %}
+			        </ul>  
+			    </div>
+			</div>
+		</nav>
+	{% endblock %}
+
+	{% block content %}
+		<div class="col-xs-1" id="myScrollspy">
+            <ul class="nav nav-tabs nav-stacked" data-spy="affix" data-offset-top="125">
+                <li class="active"><a href="#section-1">回到顶部</a></li>
             </ul>
         </div>
-    </div>
-</div>
-{% endblock %}
+		<div class="container col-xs-10" id='section-1'>
+		    {% for message in get_flashed_messages() %}
+		    <div class="alert alert-warning">
+		        <button type="button" class="close" data-dismiss="alert">&times;</button>
+		        {{ message }}
+		    </div>
+		    {% endfor %}
 
-{% block content %}
-<div class="container">
-    {% for message in get_flashed_messages() %}
-    <div class="alert alert-warning">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-        {{ message }}
-    </div>
-    {% endfor %}
+		    {% block page_content %}{% endblock %}
+		</div>
 
-    {% block page_content %}{% endblock %}
-</div>
-{% endblock %}
+	{% endblock %}
 
-{% block scripts %}
-{{ super() }}
-{{ moment.include_moment() }}
+		<script src="{{url_for('static',filename='js/jquery.min.js')}}"></script>
+		<script src="{{url_for('static',filename='js/bootstrap.min.js')}}"></script>
+		<script src="{{url_for('static',filename='js/moment-with-locales.min.js')}}"></script>
+		<script src="{{url_for('static',filename='js/test.js')}}"></script>
+		<script src="{{url_for('static',filename='js/Markdown.Converter.min.js')}}"></script>
+		<script src="{{url_for('static',filename='js/Markdown.Sanitizer.min.js')}}"></script>
+
 {% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+全部post:<a href="{{url_for('api.get_posts')}}">{{url_for('api.get_posts')}}</a><br>
+特定post:<a href="{{url_for('api.get_post',id=postid)}}">{{url_for('api.get_post',id=postid)}}</a><br>
+特定用户:<a href="{{url_for('api.get_user',id=current_user.id)}}">{{url_for('api.get_posts',id=current_user.id)}}</a><br>
+特定用户文章:<a href="{{url_for('api.get_user_posts',id=1)}}">{{url_for('api.get_posts',id=1)}}</a><br>
+post评论:<a href="{{url_for('api.get_post_comments',id=1)}}">{{url_for('api.get_post_comments',id=1)}}</a><br>
+{% endblock %}
