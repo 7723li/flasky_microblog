@@ -10,7 +10,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, request, url_for
 from datetime import datetime
 from . import login_manager,db
-import hashlib, forgery_py, os, sys
+import hashlib, os, sys
 #=====forgery_py=====
 #若想实现博客文章分页，我们需要一个包含大量数据的测试数据库。手动添加数据库记录
 #浪费时间而且很麻烦， 所以最好能使用自动化方案。有多个 Python 包可用于生成虚拟信
