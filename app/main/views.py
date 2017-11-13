@@ -8,7 +8,7 @@ from ..decorators import admin_required, permission_required
 from ..models import Permission, User, Role, Post, Comment
 from .. import login_manager,db
 from ..camera import VideoCamera
-import os
+import os, json, subprocess
 
 @main.route('/', methods=['GET', 'POST'])
 @main.route('/index', methods=['GET', 'POST'])
@@ -55,9 +55,10 @@ def index():
                             #则默认显示 20 个记录（指定默认10）
                         #设为 False，页数超出范围时会返回一个空列表
     posts = pagination.items
+    a=subprocess.getoutput('python3 test.py')
     return render_template('index.html',form=form, posts=posts ,\
                            pagination=pagination,
-                           show_followed=show_followed,)
+                           show_followed=show_followed,a=json.loads(a))
 
 #查询所有文章
 @main.route('/all')
