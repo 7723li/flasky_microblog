@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, abort, request, current_app, make_response, Response
+from flask import render_template, flash, redirect, url_for, abort, request, current_app, make_response, Response, session
 from flask_login import login_required, current_user
 from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_class
 from . import main
@@ -6,9 +6,9 @@ from .forms import EditProfileForm, EditProfileAdminForm, PostForm, CommentForm,
 from .. import db
 from ..decorators import admin_required, permission_required
 from ..models import Permission, User, Role, Post, Comment
-from .. import login_manager,db
+from .. import login_manager
 from ..camera import VideoCamera
-import os, json, subprocess
+import os, json, subprocess, re, time, socket
 
 @main.route('/', methods=['GET', 'POST'])
 @main.route('/index', methods=['GET', 'POST'])
@@ -55,10 +55,20 @@ def index():
                             #则默认显示 20 个记录（指定默认10）
                         #设为 False，页数超出范围时会返回一个空列表
     posts = pagination.items
-    a=subprocess.getoutput('python3 test.py')
+
+    a = subprocess.getoutput('python3 DHT11.py')
+    b = re.findall('不是内部或外部命令',a)
+    if(b != []):
+        a = subprocess.getoutput('python DHT11.py')
+        b = re.findall("No module named '(.*?)'",a)
+        if(b != []):
+            a = '{"tempture": "Null", "humidity": "Null"}'
+
+    local_ip_add = socket.gethostbyname(socket.gethostname())
     return render_template('index.html',form=form, posts=posts ,\
                            pagination=pagination,
-                           show_followed=show_followed,a=json.loads(a))
+                           show_followed=show_followed,a=json.loads(a),
+                           local_ip_add = local_ip_add)
 
 #查询所有文章
 @main.route('/all')
@@ -344,6 +354,40 @@ def control(direction='none'):
 @login_required
 def _control(direction='none'):
     return render_template('control.html',direction=direction)
+
+def start_up_craweler():
+    CrawlerPath = os.path.abspath(os.path.dirname(__file__)) + '\\baiduAip\\MoJiWeather.py'
+    CrawlerPath = CrawlerPath.replace('main', 'static')
+    WeatherMessage = subprocess.getoutput("python {}" . format(CrawlerPath))
+    return WeatherMessage
+
+@main.route('/weather', methods=['GET', 'POST'])
+@login_required
+def weather():
+    try:
+        t = session['weather_time']
+    except:
+        t = None
+        session['weather_time'] = time.time()
+
+    if t == None:
+        WeatherMessage = start_up_craweler()
+        session['WeatherMessage'] = WeatherMessage
+    else:
+        if time.time() - t >= 3600:
+            session['weather_time'] = time.time()
+            WeatherMessage = start_up_craweler()
+            session['WeatherMessage'] = WeatherMessage
+        else:
+            try:
+                WeatherMessage = session['WeatherMessage']
+            except:
+                WeatherMessage = start_up_craweler()
+                session['WeatherMessage'] = WeatherMessage
+
+    Mp3Path = url_for('static', filename = 'baiduAip/temp.mp3')
+    return render_template('weather.html',
+        WeatherMessage = WeatherMessage, Mp3Path = Mp3Path)
 
 @main.route('/api_list')
 @login_required

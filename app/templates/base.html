@@ -35,6 +35,7 @@
 			            {% if current_user.is_authenticated %}
 			            <li><a href="{{ url_for('main.video')}}">Video</a></li>
 			            <li><a href="{{ url_for('main.control')}}">Control</a></li>
+			            <li><a href="{{ url_for('main.weather') }}">Weather</a>></li>
 			            {% endif %}
 			        </ul>
 
