@@ -15,3 +15,11 @@ The commits and tags in this repository were carefully created to match the sequ
 示例 11-7 requirements/dev.txt：开发所需的依赖文件
 -r common.txt
 ForgeryPy==0.1
+
+Such faults like 
+"
+ImportError: libXXX.so.3: 
+	cannot open shared object file: No such file or directory
+"
+try "sudo apt-get install libXXX-dev(Or libXXX-base-dev)"
+do not go to baidu for help, it will waste you 2~3 fucking hours,fuck that
