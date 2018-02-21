@@ -8,7 +8,7 @@ from ..decorators import admin_required, permission_required
 from ..models import Permission, User, Role, Post, Comment
 from .. import login_manager
 from ..camera import VideoCamera
-import os, json, subprocess, re, time, socket
+import os, json, subprocess, re, time, socket, SG90
 
 @main.route('/', methods=['GET', 'POST'])
 @main.route('/index', methods=['GET', 'POST'])
@@ -56,15 +56,16 @@ def index():
                         #设为 False，页数超出范围时会返回一个空列表
     posts = pagination.items
 
-    a = subprocess.getoutput('python3 DHT11.py')
-    b = re.findall('不是内部或外部命令',a)
-    if(b != []):
-        a = subprocess.getoutput('python DHT11.py')
-        b = re.findall("No module named '(.*?)'",a)
-        if(b != []):
-            a = '{"tempture": "Null", "humidity": "Null"}'
-
-    local_ip_add = socket.gethostbyname(socket.gethostname())
+    system = os.name
+    if system == 'posix':
+        a = subprocess.getoutput('python3 DHT11.py')
+        b = subprocess.getoutput('ifconfig')
+        local_ip_add = re.findall('inet(.*?)netmask',b)
+        local_ip_add = local_ip_add[0].strip()
+    if system == 'nt':
+        a = json.dumps('null')
+        local_ip_add = socket.gethostbyname(socket.gethostname())
+    
     return render_template('index.html',form=form, posts=posts ,\
                            pagination=pagination,
                            show_followed=show_followed,a=json.loads(a),
@@ -353,12 +354,28 @@ def control(direction='none'):
 @main.route('/control/<direction>',methods=['GET','POST'])
 @login_required
 def _control(direction='none'):
+    if direction == 'stop':
+        SG90.stop()
+    
+    elif direction == 'right':
+        SG90.right()
+
+    elif direction == 'left':
+        SG90.left()
+    
     return render_template('control.html',direction=direction)
 
 def start_up_craweler():
-    CrawlerPath = os.path.abspath(os.path.dirname(__file__)) + '\\baiduAip\\MoJiWeather.py'
-    CrawlerPath = CrawlerPath.replace('main', 'static')
-    WeatherMessage = subprocess.getoutput("python {}" . format(CrawlerPath))
+    system = os.name
+    if system == 'nt':
+        CrawlerPath = os.path.abspath(os.path.dirname(__file__)) + '\\baiduAip\\MoJiWeather.py'
+        CrawlerPath = CrawlerPath.replace('main', 'static')
+        WeatherMessage = subprocess.getoutput("python {}" . format(CrawlerPath))
+    if system == 'posix':
+        CrawlerPath = os.path.abspath(os.path.dirname(__file__)) + '/baiduAip/MoJiWeather.py'
+        CrawlerPath = CrawlerPath.replace('main', 'static')
+        WeatherMessage = subprocess.getoutput("python3 {}" . format(CrawlerPath))
+
     return WeatherMessage
 
 @main.route('/weather', methods=['GET', 'POST'])
@@ -374,7 +391,7 @@ def weather():
         WeatherMessage = start_up_craweler()
         session['WeatherMessage'] = WeatherMessage
     else:
-        if time.time() - t >= 3600:
+        if time.time() - t >= 30:
             session['weather_time'] = time.time()
             WeatherMessage = start_up_craweler()
             session['WeatherMessage'] = WeatherMessage
@@ -385,7 +402,7 @@ def weather():
                 WeatherMessage = start_up_craweler()
                 session['WeatherMessage'] = WeatherMessage
 
-    Mp3Path = url_for('static', filename = 'baiduAip/temp.mp3')
+    Mp3Path = url_for('static', filename = 'baiduAip/weather.mp3')
     return render_template('weather.html',
         WeatherMessage = WeatherMessage, Mp3Path = Mp3Path)
 

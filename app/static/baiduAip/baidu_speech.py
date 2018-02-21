@@ -1,10 +1,11 @@
+import os
 import requests
 import json
 import base64
 import wave
 import io
 import uuid
-from pydub import AudioSegment
+# from pydub import AudioSegment
 
 class BaiduRest:
     def __init__(self, cu_id, api_key, api_secert):
