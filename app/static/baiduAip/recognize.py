@@ -5,8 +5,14 @@ import os
 import json
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+
+for i in os.listdir(basedir):
+    if i.endswith('mp3'): # 删除旧的音频文件
+        os.remove(os.path.join(basedir, i))
+        break
+
 record_wav = 'record.wav'
-temp_mp3 = basedir + '/weather.mp3'
+temp_mp3 = basedir + ('/weather{}.mp3' . format(str(time.time())))
 synthesis_wav = 'synthesis.wav'
 
 api_key = "V9fQYQSsMNlvTA5bRukcfuvy"

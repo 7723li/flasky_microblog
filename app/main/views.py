@@ -5,7 +5,7 @@ from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm, CommentForm, UploadForm, photos
 from .. import db
 from ..decorators import admin_required, permission_required
-from ..models import Permission, User, Role, Post, Comment
+from ..models import Permission, User, Role, Post, Comment, WeatherSQL
 from .. import login_manager
 from ..camera import VideoCamera
 import os, json, subprocess, re, time, socket, SG90
@@ -58,17 +58,14 @@ def index():
 
     system = os.name
     if system == 'posix':
-        a = subprocess.getoutput('python3 DHT11.py')
-        b = subprocess.getoutput('ifconfig')
         local_ip_add = re.findall('inet(.*?)netmask',b)
         local_ip_add = local_ip_add[0].strip()
     if system == 'nt':
-        a = json.dumps('null')
         local_ip_add = socket.gethostbyname(socket.gethostname())
     
     return render_template('index.html',form=form, posts=posts ,\
                            pagination=pagination,
-                           show_followed=show_followed,a=json.loads(a),
+                           show_followed=show_followed,
                            local_ip_add = local_ip_add)
 
 #查询所有文章
@@ -355,13 +352,22 @@ def control(direction='none'):
 @login_required
 def _control(direction='none'):
     if direction == 'stop':
-        SG90.stop()
+        try:
+            SG90.stop()
+        except:
+            pass
     
     elif direction == 'right':
-        SG90.right()
+        try:
+            SG90.right()
+        except:
+            pass
 
     elif direction == 'left':
-        SG90.left()
+        try:
+            SG90.left()
+        except:
+            pass
     
     return render_template('control.html',direction=direction)
 
@@ -381,6 +387,14 @@ def start_up_craweler():
 @main.route('/weather', methods=['GET', 'POST'])
 @login_required
 def weather():
+    system = os.name
+    if system == 'posix':
+        a = subprocess.getoutput('python3 DHT11.py')
+        b = subprocess.getoutput('ifconfig')
+    if system == 'nt':
+        a =json.dumps({'humidity':-1,'tempture':-1})
+    a=json.loads(a)        
+    
     try:
         t = session['weather_time']
     except:
@@ -391,10 +405,18 @@ def weather():
         WeatherMessage = start_up_craweler()
         session['WeatherMessage'] = WeatherMessage
     else:
-        if time.time() - t >= 30:
+        if time.time() - t >= 1800: # 半小时才能刷新一次
             session['weather_time'] = time.time()
             WeatherMessage = start_up_craweler()
             session['WeatherMessage'] = WeatherMessage
+            
+            ctime = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())).replace(' ','\n')
+            tempOUT = re.findall('(.\d)度',WeatherMessage)[0]
+            weather_sql = WeatherSQL(date=str(ctime),
+                              tempOUT = tempOUT, tempIN = a.get('tempture'))
+            db.session.add(weather_sql)
+            db.session.commit()
+            
         else:
             try:
                 WeatherMessage = session['WeatherMessage']
@@ -402,9 +424,36 @@ def weather():
                 WeatherMessage = start_up_craweler()
                 session['WeatherMessage'] = WeatherMessage
 
-    Mp3Path = url_for('static', filename = 'baiduAip/weather.mp3')
-    return render_template('weather.html',
-        WeatherMessage = WeatherMessage, Mp3Path = Mp3Path)
+    dateList = []
+    tempInList = []
+    tempOutList = []
+
+    paramList = WeatherSQL.query.all()
+    l = len(paramList)
+    
+    if(l > 10): # 显示最近10次的记录
+        for i in range(l - 10, l):
+            dateList.append(paramList[i].date)
+            tempInList.append(int(paramList[i].tempIN))
+            tempOutList.append(int(paramList[i].tempOUT))
+    else:
+        for i in range(0, l):
+            dateList.append(paramList[i].date)
+            tempInList.append(int(paramList[i].tempIN))
+            tempOutList.append(int(paramList[i].tempOUT))
+
+    # path =os.getcwd() + url_for('static', filename = 'baiduAip')
+    path = os.path.join(os.path.join(os.path.join(os.getcwd(), 'app'), 'static'), 'baiduAip')
+    
+    for i in os.listdir(path):
+        if i.endswith('mp3'):
+            break
+
+    Mp3Path = url_for('static', filename = 'baiduAip/' + i)
+
+    return render_template('weather.html',a=a,
+        WeatherMessage = WeatherMessage, Mp3Path = Mp3Path,
+        dateList = dateList, tempInList = tempInList, tempOutList = tempOutList)
 
 @main.route('/api_list')
 @login_required

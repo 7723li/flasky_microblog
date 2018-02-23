@@ -1,8 +1,65 @@
 {% extends "base.html" %}
+
 {% block page_content %}
-	{{ WeatherMessage }} <br>
-	
-	<audio src="{{ Mp3Path }}" controls ="autoplay">wav</audio>
+	{{ WeatherMessage }} <br><br><br>
+
+	现时温度为{{a.get('tempture')}}摄氏度，湿度为{{a.get('humidity')}}% <br><br><br>
+
+	<audio src="{{ Mp3Path }}" controls ="autoplay" >wav</audio> <br><br><br>
 	<!-- <audio src="{{ Mp3Path }}" autoplay="autoplay">wav</audio> -->
+
+	<div id="container" style="max-width:800px;height:400px"></div>
+
+	<div id="container" style="min-width:400px;height:400px"></div>
+
+    <script>
+    var chart = Highcharts.chart('container', {
+    chart: {
+        type: 'spline'
+    },
+    title: {
+        text: '室内外温度记录'
+    },
+    xAxis: {
+        categories: {{ dateList | tojson }}
+    },
+    yAxis: {
+        title: {
+            text: '温度'
+        },
+        labels: {
+            formatter: function () {
+                return this.value + '°';
+            }
+        }
+    },
+    tooltip: {
+        crosshairs: true,
+        shared: true
+    },
+    plotOptions: {
+        spline: {
+            marker: {
+                radius: 4,
+                lineColor: '#666666',
+                lineWidth: 1
+            }
+        }
+    },
+    series: [{
+        name: '室内',
+        marker: {
+            symbol: 'square'
+        },
+        data: {{tempInList}}
+    }, {
+        name: '室外',
+        marker: {
+            symbol: 'diamond'
+        },
+        data: {{tempOutList}}
+    }]
+});
+</script>
 
 {% endblock %}
