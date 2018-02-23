@@ -520,3 +520,10 @@ db.event.listen(Comment.body, 'set', Comment.on_changed_body)
 def load_user(user_id):
     return User.query.get(int(user_id))
 #如果能找到用户，这个函数必须返回用户对象；否则应该返回 None。
+
+class WeatherSQL(db.Model):
+    __tablename__ = 'weather'
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Text)
+    tempOUT = db.Column(db.Text)
+    tempIN = db.Column(db.Text)

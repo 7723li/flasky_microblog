@@ -8,10 +8,12 @@
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
 	<link rel="shortcut icon" href="{{ url_for('static', filename = 'Gravatar/favicon.ico') }}" type="image/x-icon">
 	<link rel="icon" href="{{ url_for('static', filename = 'Gravatar/favicon.ico') }}" type="image/x-icon">
-	<style type="text/css">
-	/* Custom Styles */
-    
-	</style>
+
+    <script src="https://img.hcharts.cn/highcharts/highcharts.js"></script>
+	<script src="https://img.hcharts.cn/highcharts/modules/exporting.js"></script>
+	<script src="https://img.hcharts.cn/highcharts/modules/series-label.js"></script>
+	<script src="https://img.hcharts.cn/highcharts/modules/oldie.js"></script>
+	<script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
 {% endblock %}
 
 {% block body_attribs %} data-spy="scroll" data-target="#myScrollspy"{% endblock %}

@@ -22,14 +22,12 @@ class BaiduRest:
         Token=json.loads(r.text)
         self.token_str = Token['access_token']
 
-
     def getVoice(self, text, filename):
         data={'tex':text,'lan':'zh','cuid':self.cu_id,'ctp':1,'tok':self.token_str}
         r=requests.post(self.getvoice_url,data=data,stream=True)
         voice_fp = open(filename,'wb')
         voice_fp.write(r.raw.read())
         voice_fp.close()
-
 
     def getText(self, filename):
         data = {"format":"wav","rate":16000, "channel":1,"token":self.token_str,"cuid":self.cu_id,"lan":"zh"}

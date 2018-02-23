@@ -8,7 +8,6 @@
 <div class="page-header">
     <h1>Hello, {% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}!</h1>
     移动端登陆请在浏览器输入&nbsp;&nbsp;<strong>{{ local_ip_add }}:5000</strong>&nbsp;&nbsp;<br>
-	现时温度为{{a.get('tempture')}}摄氏度，湿度为{{a.get('humidity')}}%
 </div>
 <div>
     {% if current_user.can(Permission.WRITE_ARTICLES) %}

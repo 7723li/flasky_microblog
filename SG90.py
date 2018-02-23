@@ -1,13 +1,15 @@
-import RPi.GPIO as gpio
 import time
-
-gpio.setwarnings(False)
-gpio.setmode(gpio.BOARD)
-servoPin = 18
-gpio.setup(servoPin, gpio.OUT, initial = False)
-pwm = gpio.PWM(servoPin, 50)
-pwm.start(0)
-i = 0
+try:
+    import RPi.GPIO as gpio
+    gpio.setwarnings(False)
+    gpio.setmode(gpio.BOARD)
+    servoPin = 18
+    gpio.setup(servoPin, gpio.OUT, initial = False)
+    pwm = gpio.PWM(servoPin, 50)
+    pwm.start(0)
+    i = 0
+except:
+    pass
 
 def turn(i):
     pwm.ChangeDutyCycle(2.5 + 10 * i / 180)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os, sys
 from app import create_app, db
-from app.models import User, Role, Post, Follow
+from app.models import User, Role, Post, Follow, WeatherSQL
 from app.main.forms import photos
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
@@ -16,7 +16,7 @@ patch_request_class(app)
 whooshalchemy.whoosh_index(app, Post)
 
 def make_shell_context():#context 语境;上下文;背景;环境
-    return dict(app=app, db=db, User=User, Role=Role ,Post=Post, Follow=Follow)
+    return dict(app=app, db=db, User=User, Role=Role ,Post=Post, Follow=Follow, WeatherSQL = WeatherSQL)
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 
