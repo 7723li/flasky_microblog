@@ -58,6 +58,7 @@ def index():
 
     system = os.name
     if system == 'posix':
+        b = subprocess.getoutput('ifconfig')
         local_ip_add = re.findall('inet(.*?)netmask',b)
         local_ip_add = local_ip_add[0].strip()
     if system == 'nt':
@@ -351,25 +352,38 @@ def control(direction='none'):
 @main.route('/control/<direction>',methods=['GET','POST'])
 @login_required
 def _control(direction='none'):
+    try:
+        deg = int(open('SG90','r').read())
+    except:
+        deg = 0
+        with open('SG90','w') as file:
+            file.write(str(deg))
+
     if direction == 'stop':
         try:
             SG90.stop()
         except:
             pass
-    
+
     elif direction == 'right':
-        try:
-            SG90.right()
-        except:
+        if deg <= 0:
             pass
+        else:
+            deg -= 30
+            SG90.right(deg)
+            with open('SG90','w') as file:
+                file.write(str(deg))
 
     elif direction == 'left':
-        try:
-            SG90.left()
-        except:
+        if deg >= 180:
             pass
-    
-    return render_template('control.html',direction=direction)
+        else:
+            deg += 30
+            SG90.left(deg)
+            with open('SG90','w') as file:
+                file.write(str(deg))
+
+    return render_template('control.html',direction=direction, deg = deg)
 
 def start_up_craweler():
     system = os.name
@@ -412,6 +426,7 @@ def weather():
             
             ctime = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())).replace(' ','\n')
             tempOUT = re.findall('(.\d)度',WeatherMessage)[0]
+            print('................')
             weather_sql = WeatherSQL(date=str(ctime),
                               tempOUT = tempOUT, tempIN = a.get('tempture'))
             db.session.add(weather_sql)
