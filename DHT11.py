@@ -10,12 +10,10 @@ time.sleep(1)
 data=[]
 
 gpio.setup(12,gpio.OUT)
-gpio.setup(16,gpio.OUT)
 	
 gpio.output(12,gpio.LOW)
 time.sleep(0.02)
 gpio.output(12,gpio.HIGH)
-gpio.output(16,gpio.LOW)
 
 gpio.setup(12,gpio.IN)
 while gpio.input(12)==1:
@@ -67,7 +65,6 @@ for i in range(8):
 tmp=humidity+humidity_point+tempture+tempture_point
 res=json.dumps({'humidity':humidity,'tempture':tempture})
 print(res)
-gpio.output(16,gpio.HIGH)
 
 #if __name__ == '__main__':
 	#DHT11()
